@@ -8,3 +8,13 @@
 import scrapy
 
 
+
+class MemberofParliament(scrapy.Item):
+	"""
+	Data structure to define Member of Parliament information
+	"""
+	mp_id = scrapy.Field()
+	mp_name = scrapy.Field()
+	mp_constituency = scrapy.Field()
+	mp_party = scrapy.Field()
+	mp_photo = scrapy.Field()
