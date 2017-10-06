@@ -18,3 +18,15 @@ class MemberofParliament(scrapy.Item):
 	mp_constituency = scrapy.Field()
 	mp_party = scrapy.Field()
 	mp_photo = scrapy.Field()
+
+
+class RajyaSabhaQuestions():
+	"""
+	Data structure to define a Rajya Sabha question
+	"""
+	q_no = scrapy.Field()
+	q_type = scrapy.Field()
+	q_date = scrapy.Field()
+	q_ministry = scrapy.Field()
+	q_member = scrapy.Field()
+	q_subject = scrapy.Field()
