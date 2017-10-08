@@ -2,14 +2,13 @@
 # Define our Spiders here
 # Spiders are classes that Scrapy uses to scrape information from a website
 #
-# In this file we define spiders that scrape questions asked in both Houses of
-# Parliament
+# In this file we define spiders that scrape questions asked in Rajya Sabha
 #
 #
 
 import scrapy
 from scrapy.http import FormRequest
-from parliamentsearch.items import RajyaSabhaQuestions
+from parliamentsearch.items import RajyaSabhaQuestion
 
 
 

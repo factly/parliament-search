@@ -20,7 +20,7 @@ class MemberofParliament(scrapy.Item):
 	mp_photo = scrapy.Field()
 
 
-class RajyaSabhaQuestions():
+class RajyaSabhaQuestion(scrapy.Item):
 	"""
 	Data structure to define a Rajya Sabha question
 	"""
