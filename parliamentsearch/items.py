@@ -30,3 +30,16 @@ class RajyaSabhaQuestion(scrapy.Item):
 	q_ministry = scrapy.Field()
 	q_member = scrapy.Field()
 	q_subject = scrapy.Field()
+
+
+class LokSabhaQuestion(scrapy.Item):
+	"""
+	Data structure to define a Lok Sabha question
+	"""
+	q_no = scrapy.Field()
+	q_session = scrapy.Field()
+	q_type = scrapy.Field()
+	q_date = scrapy.Field()
+	q_ministry = scrapy.Field()
+	q_member = scrapy.Field()
+	q_subject = scrapy.Field()
