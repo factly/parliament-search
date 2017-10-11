@@ -32,10 +32,15 @@ class LSQuestionSpider(scrapy.Spider):
 		""" Scrape list of questions of all sessions """
 
 		sel = Selector(response)
-		ans_date_from = sel.xpath('//select[@id="ContentPlaceHolder1_ddlfrom"]/option[@selected="selected"]/@value').extract()
-		ans_date_to = sel.xpath('//select[@id="ContentPlaceHolder1_ddlto"]/option[@selected="selected"]/@value').extract()
-		session_from = sel.xpath('//select[@id="ContentPlaceHolder1_ddlsesfrom"]/option[@selected="selected"]/@value').extract()
-		session_to = sel.xpath('//select[@id="ContentPlaceHolder1_ddlsesto"]/option[@selected="selected"]/@value').extract()
+		fields = ["ContentPlaceHolder1_ddlfrom", \
+				  "ContentPlaceHolder1_ddlto", \
+				  "ContentPlaceHolder1_ddlsesfrom", \
+				  "ContentPlaceHolder1_ddlsesto"]
+		selected_options = []
+		for field in fields:
+			query = '//select[@id="{0}"]/option[@selected="selected"]/@value'.format(field)
+			selected_options.append(sel.xpath(query).extract()[0])
+		print(selected_options)
 
 		"""
 		FormRequest.from_response() below will use values from the form unless
@@ -45,10 +50,10 @@ class LSQuestionSpider(scrapy.Spider):
 			"ctl00$ContentPlaceHolder1$btngo": "Go",
 			"ctl00$ContentPlaceHolder1$ddlqtype" : "ANYTYPE",
 			"ctl00$ContentPlaceHolder1$sort": "btndate",
-			"ctl00$ContentPlaceHolder1$ddlfrom": ans_date_from[0],
-			"ctl00$ContentPlaceHolder1$ddlto": ans_date_to[0],
-			"ctl00$ContentPlaceHolder1$ddlsesfrom": session_from[0],
-			"ctl00$ContentPlaceHolder1$ddlsesfrom": session_to[0],
+			"ctl00$ContentPlaceHolder1$ddlfrom": selected_options[0],
+			"ctl00$ContentPlaceHolder1$ddlto": selected_options[1],
+			"ctl00$ContentPlaceHolder1$ddlsesfrom": selected_options[2],
+			"ctl00$ContentPlaceHolder1$ddlsesfrom": selected_options[3],
 			"__EVENTVALIDATION": sel.css('input#__EVENTVALIDATION::attr(value)').extract_first(),
 			"__VIEWSTATE": sel.css('input#__VIEWSTATE::attr(value)').extract_first(),
 			"__VIEWSTATEGENERATOR": sel.css('input#__VIEWSTATEGENERATOR::attr(value)').extract_first()
