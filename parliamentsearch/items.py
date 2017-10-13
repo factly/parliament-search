@@ -5,6 +5,7 @@
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/items.html
 
+from enum import Enum
 import scrapy
 
 
@@ -31,6 +32,14 @@ class RajyaSabhaQuestion(scrapy.Item):
 	q_member = scrapy.Field()
 	q_subject = scrapy.Field()
 
+class LSQnFields(Enum):
+	NUM = 0
+	TYPE = 1
+	DATE = 2
+	MINISTRY = 3
+	MEMBERS = 4
+	SUBJECT = 5
+	ANNEX = 6
 
 class LokSabhaQuestion(scrapy.Item):
 	"""
