@@ -9,6 +9,7 @@
 import scrapy
 from scrapy.selector import Selector
 from scrapy.http import FormRequest
+from urllib.parse import urlencode
 from parliamentsearch.items import LokSabhaQuestion
 
 
@@ -20,11 +21,11 @@ class LSQuestionSpider(scrapy.Spider):
 
 	name = "ls_questions"
 	active_sessions = [16, 15, 14, 13, 12]  # most recent at the beginning
-	base_url = 'http://164.100.47.194/Loksabha/Questions/qsearch15.aspx?lsno='
+	base_url = 'http://164.100.47.194/Loksabha/Questions/qsearch15.aspx'
 
 	def start_requests(self):
 		# extract only from current active session at the moment
-		base_urls = [self.base_url + str(s) for s in self.active_sessions[:1]]
+		base_urls = [self.base_url + '?' + urlencode({'lsno': s}) for s in self.active_sessions[:1]]
 		for url in base_urls:
 			yield scrapy.Request(url, callback=self.parse)
 
@@ -76,7 +77,7 @@ class LSQuestionSpider(scrapy.Spider):
 		if num_pages:
 			# for now try to scrape data only from 2 pages
 			for n in range(1, 3):
-				page_url = self.base_url + str(current_session)
+				page_url = self.base_url + '?' + urlencode({'lsno': current_session})
 				formdata["ctl00$ContentPlaceHolder1$txtpage"] = str(n)
 
 				callback = lambda response: self.parse_questions(response, current_session)
