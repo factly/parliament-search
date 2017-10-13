@@ -10,7 +10,7 @@ import scrapy
 from scrapy.selector import Selector
 from scrapy.http import FormRequest
 from urllib.parse import urlencode
-from parliamentsearch.items import LokSabhaQuestion
+from parliamentsearch.items import LokSabhaQuestion, LSQnFields
 
 
 
@@ -25,7 +25,8 @@ class LSQuestionSpider(scrapy.Spider):
 
 	def start_requests(self):
 		# extract only from current active session at the moment
-		base_urls = [self.base_url + '?' + urlencode({'lsno': s}) for s in self.active_sessions[:1]]
+		base_urls = [self.base_url + '?' + urlencode({'lsno': s}) \
+					 for s in self.active_sessions[:1]]
 		for url in base_urls:
 			yield scrapy.Request(url, callback=self.parse)
 
@@ -73,6 +74,7 @@ class LSQuestionSpider(scrapy.Spider):
 		num_pages = int(num_pages_text.split()[1])
 		print('No. of pages:', num_pages)
 
+
 		# loop through pages and scrape all questions
 		if num_pages:
 			# for now try to scrape data only from 2 pages
@@ -84,30 +86,57 @@ class LSQuestionSpider(scrapy.Spider):
 				yield FormRequest.from_response(response, formdata=formdata, callback=callback)
 
 	def parse_questions(self, response, current_session):
+		"""This is the response for a set of questions (10) of the given session. This
+		is usually called repeatedly as per number of pages to parse all
+		questions
+		"""
 		sel = Selector(response)
+
 		q_table_rows = sel.xpath('//div[@id="ContentPlaceHolder1_pnlDiv"]/table[@id="ContentPlaceHolder1_tblMember"]/tr/td/table[@class="member_list_table"]/tr')
 		for i, tr in enumerate(q_table_rows):
-			qtn = LokSabhaQuestion()
+			row = []
+			urls = None
+			for j, td in enumerate(tr.xpath('td')):
+				field = td.xpath('a/text()').extract()
+				row.append(field)
 
-			row = tr.xpath('td/a/text()').extract()
-			qtn['q_session'] = current_session
-			qtn['q_no'] = int(row[0])
-			qtn['q_type'] = row[1].strip().lower()
-			eng_url = ''
-			hindi_url = ''
-			if qtn['q_type'] == 'starred':
-				eng_url = tr.xpath('td[2]/a[5]/@href').extract()[0]
-				hindi_url = tr.xpath('td[2]/a[7]/@href').extract()[0]
-			qtn['q_date'] = row[4]
-			qtn['q_ministry'] = row[5]
-			qtn['q_member'] = row[6]
-			qtn['q_subject'] = row[7]
+				if field[0].strip().lower() == 'starred':
+					urls = td.xpath('a/@href').extract()
 
-			print(qtn)
-			if qtn['q_type'] == 'starred':
-				print(eng_url)
-				print(hindi_url)
+			row.append(urls)
+			self.parse_items(current_session, row)
 
+
+	def parse_items(self, session, row):
+		"""
+		row is a list which contains values of all fields for a particular
+		question. In this function we create item object and populate them with
+		required fields
+		"""
+
+		q = LokSabhaQuestion()
+
+		q['q_session'] = session
+		q['q_no'] = int(row[LSQnFields.NUM.value][0])
+		q['q_type'] = row[LSQnFields.TYPE.value][0].strip().lower()
+		q['q_annex'] = {}
+		if q['q_type'] == 'starred':
+			for u, val in enumerate(row[LSQnFields.ANNEX.value][1:]):
+				annex_name = row[LSQnFields.TYPE.value][u+1]
+				# TODO: this is not consistent in all sessions so restrict for now
+				if annex_name == 'PDF/WORD' or \
+				   annex_name == 'PDF/WORD(Hindi)' or \
+				   annex_name == 'Annexure':
+					q['q_annex'][row[LSQnFields.TYPE.value][u+1]] = val
+
+		q['q_date'] = row[LSQnFields.DATE.value][0]
+		q['q_ministry'] = row[LSQnFields.MINISTRY.value][0]
+		q['q_member'] = row[LSQnFields.MEMBERS.value]
+		q['q_subject'] = row[LSQnFields.SUBJECT.value][0]
+		params = row[LSQnFields.ANNEX.value][0].split('?')[1]
+		q['q_url'] = self.base_url + '?' + params
+
+		print(q)
 
 	def save_response(self, response):
 		""" Dumps the response to a file - useful for debug """
