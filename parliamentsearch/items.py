@@ -43,3 +43,5 @@ class LokSabhaQuestion(scrapy.Item):
 	q_ministry = scrapy.Field()
 	q_member = scrapy.Field()
 	q_subject = scrapy.Field()
+	q_url = scrapy.Field()
+	q_annex = scrapy.Field()
