@@ -93,6 +93,10 @@ class LSQuestionSpider(scrapy.Spider):
 		sel = Selector(response)
 
 		q_table_rows = sel.xpath('//div[@id="ContentPlaceHolder1_pnlDiv"]/table[@id="ContentPlaceHolder1_tblMember"]/tr/td/table[@class="member_list_table"]/tr')
+
+		# list of questions available in a page
+		# all of these are inserted into db at once
+		questions = []
 		for i, tr in enumerate(q_table_rows):
 			row = []
 			urls = None
@@ -104,7 +108,10 @@ class LSQuestionSpider(scrapy.Spider):
 					urls = td.xpath('a/@href').extract()
 
 			row.append(urls)
-			self.parse_items(current_session, row)
+			q = self.parse_items(current_session, row)
+			questions.append(q)
+
+		yield {'questions': questions }
 
 
 	def parse_items(self, session, row):
@@ -136,7 +143,7 @@ class LSQuestionSpider(scrapy.Spider):
 		params = row[LSQnFields.ANNEX.value][0].split('?')[1]
 		q['q_url'] = self.base_url + '?' + params
 
-		print(q)
+		return q
 
 	def save_response(self, response):
 		""" Dumps the response to a file - useful for debug """
