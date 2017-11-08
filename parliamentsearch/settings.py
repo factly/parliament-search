@@ -88,3 +88,12 @@ ROBOTSTXT_OBEY = True
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+ITEM_PIPELINES = {
+    'parliamentsearch.pipelines.ParliamentSearchPipeline': 300,
+}
+
+MONGODB_URL = 'mongodb://localhost'
+MONGODB_DB = 'parliament_search'
+MONGODB_LS_COLLECTION = 'ls_questions'
+MONGODB_RS_COLLECTION = 'rs_questions'
