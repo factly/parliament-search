@@ -45,6 +45,7 @@ class LokSabhaQuestion(scrapy.Item):
 	"""
 	Data structure to define a Lok Sabha question
 	"""
+	_id = scrapy.Field()
 	q_no = scrapy.Field()
 	q_session = scrapy.Field()
 	q_type = scrapy.Field()
