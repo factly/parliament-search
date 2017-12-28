@@ -93,7 +93,7 @@ ITEM_PIPELINES = {
     'parliamentsearch.pipelines.ParliamentSearchPipeline': 300,
 }
 
-MONGODB_URL = 'mongodb://localhost'
-MONGODB_DB = 'parliament_search'
-MONGODB_LS_COLLECTION = 'ls_questions'
-MONGODB_RS_COLLECTION = 'rs_questions'
+# MONGODB_URL = 'mongodb://localhost'
+# MONGODB_DB = 'parliament_search'
+# MONGODB_LS_COLLECTION = 'ls_questions'
+# MONGODB_RS_COLLECTION = 'rs_questions'

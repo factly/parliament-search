@@ -7,36 +7,49 @@
 
 from scrapy.conf import settings
 import pymongo
+from datetime import datetime
+from .models import PQDataModel
+
 
 class ParliamentSearchPipeline(object):
-	def __init__(self):
-		connection = pymongo.MongoClient(settings['MONGODB_URL'])
-		if connection is None:
-			print("Error connecting to mongodb")
-			return
+    def __init__(self):
+        self.connection = None
 
-		self.db = connection[settings['MONGODB_DB']]
-		self.ls_questions = self.db[settings['MONGODB_LS_COLLECTION']]
+    def process_item(self, items, spider):
 
-		# DROP THE COLLECTION TO START FRESH
-		self.ls_questions.drop()
+        if spider.name == "ls_questions":
+            questions = items['questions']
+            print(questions)
 
-	def process_item(self, items, spider):
+            self.insert_in_db(questions)
 
-		if spider.name == "ls_questions":
-			questions = items['questions']
-			if len(questions) == 0:
-				return
+        else:
+            raise ValueError("Invalid collection:", spider.name)
 
-			inserted_ids = []
-			try:
-				result = self.ls_questions.insert_many(list(questions),
-													   ordered=False)
-			except pymongo.errors.OperationsFailure as exc:
-				print("Operation failure during insert_many()")
-			else:
-				inserted_ids = result.inserted_ids
-		else:
-			raise ValueError("Invalid collection:", spider.name)
+        return items
 
-		return items
+    def insert_in_db(self, questions):
+
+        with PQDataModel.batch_write() as batch:
+            records = []
+            for q in questions:
+                record = PQDataModel()
+                record.question_number = q['question_number']
+                record.question_origin = q['question_origin']
+                record.question_type = q['question_type']
+                record.question_session = q['question_session']
+                record.question_ministry = q['question_ministry']
+                record.question_member = q['question_member']
+                record.question_subject = q['question_subject']
+                record.question_type = q['question_type']
+                record.question_annex = q['question_annex']
+                record.question_url = q['question_url']
+                record.question_text = q['question_text']
+                record.question_url = q['question_url']
+                record.question_date = datetime.strptime(q['question_date'], '%d.%m.%Y')
+
+                records.append(record)
+
+            for record in records:
+                batch.save(record)
+
