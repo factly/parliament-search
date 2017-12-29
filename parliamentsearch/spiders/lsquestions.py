@@ -49,23 +49,37 @@ class LSQuestionSpider(scrapy.Spider):
         for field in fields:
             query = '//select[@id="{0}"]/option[@selected="selected"]/@value'.format(field)
             selected_options.append(sel.xpath(query).extract()[0])
-        print(selected_options)
+
+        print("SELECTED options \n {}".format(selected_options))
 
         """
         FormRequest.from_response() below will use values from the form unless
         overridden explicitly so update only required values
         """
         formdata = {
-            "ctl00$ContentPlaceHolder1$btngo": "Go",
-            "ctl00$ContentPlaceHolder1$ddlqtype": "ANYTYPE",
-            "ctl00$ContentPlaceHolder1$sort": "btndate",
+            "__EVENTTARGET": "",
+            "__EVENTARGUMENT": "",
+            "__LASTFOCUS": "",
+            "__VIEWSTATE": sel.css('input#__VIEWSTATE::attr(value)').extract_first(),
+            "__VIEWSTATEGENERATOR": sel.css('input#__VIEWSTATEGENERATOR::attr(value)').extract_first(),
+            "__VIEWSTATEENCRYPTED": "",
+            "__EVENTVALIDATION": sel.css('input#__EVENTVALIDATION::attr(value)').extract_first(),
+            "ctl00$txtSearchGlobal":"",
+            "ctl00$ContentPlaceHolder1$ddlfile":".pdf",
+            "ctl00$ContentPlaceHolder1$TextBox1": "",
+            "ctl00$ContentPlaceHolder1$btn": "allwordbtn",
+            "ctl00$ContentPlaceHolder1$btn1": "titlebtn",
+            "ctl00$ContentPlaceHolder1$ddlmember": "--- Select Member Name ---",
+            "ctl00$ContentPlaceHolder1$ddlministry": "--- Select Ministry Name ---",
             "ctl00$ContentPlaceHolder1$ddlfrom": selected_options[0],
             "ctl00$ContentPlaceHolder1$ddlto": selected_options[1],
+            "ctl00$ContentPlaceHolder1$ddlqtype": "ANYTYPE",
             "ctl00$ContentPlaceHolder1$ddlsesfrom": selected_options[2],
-            "ctl00$ContentPlaceHolder1$ddlsesfrom": selected_options[3],
-            "__EVENTVALIDATION": sel.css('input#__EVENTVALIDATION::attr(value)').extract_first(),
-            "__VIEWSTATE": sel.css('input#__VIEWSTATE::attr(value)').extract_first(),
-            "__VIEWSTATEGENERATOR": sel.css('input#__VIEWSTATEGENERATOR::attr(value)').extract_first()
+            "ctl00$ContentPlaceHolder1$ddlsesto": selected_options[3],
+            "ctl00$ContentPlaceHolder1$txtqno": "",
+            "ctl00$ContentPlaceHolder1$sort": "btndate",
+            "ctl00$ContentPlaceHolder1$txtpage": 1,
+            "ctl00$ContentPlaceHolder1$btngo": "Go"
         }
 
         """
@@ -84,7 +98,7 @@ class LSQuestionSpider(scrapy.Spider):
         # loop through pages and scrape all questions
         if num_pages:
             # for now try to scrape data only from 2 pages
-            for n in range(1, 5):
+            for n in range(499, 501):
                 page_url = self.base_url + '?' + urlencode({'lsno': current_session})
                 formdata["ctl00$ContentPlaceHolder1$txtpage"] = str(n)
 
