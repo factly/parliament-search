@@ -173,7 +173,8 @@ class LSQuestionSpider(scrapy.Spider):
             url = "/".join(url_list)
             q['question_url'] = url
             q['question_text'] = self.get_text(url)
-            q['question_number'] = "".join(reversed(list(dict(urllib.parse.parse_qsl(first_url)).values())))
+            qref = dict(parse_qsl(first_url))['QResult15.aspx?qref']
+            q['question_number'] = str(session) + str(qref)
 
         self.insert_in_db(q)
 
