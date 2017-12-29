@@ -19,9 +19,8 @@ class ParliamentSearchPipeline(object):
 
         if spider.name == "ls_questions":
             questions = items['questions']
-            print(questions)
 
-            self.insert_in_db(questions)
+            # self.insert_in_db(questions)
 
         else:
             raise ValueError("Invalid collection:", spider.name)

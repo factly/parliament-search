@@ -15,6 +15,11 @@ from newspaper import Article
 from newspaper import fulltext
 import urllib
 
+from urllib.parse import parse_qsl
+
+from ..models import PQDataModel
+from datetime import datetime
+
 
 class LSQuestionSpider(scrapy.Spider):
     """
@@ -156,6 +161,8 @@ class LSQuestionSpider(scrapy.Spider):
             q['question_text'] = self.get_text(url)
             q['question_number'] = "".join(reversed(list(dict(urllib.parse.parse_qsl(first_url)).values())))
 
+        self.insert_in_db(q)
+
         return q
 
     def save_response(self, response):
@@ -175,6 +182,22 @@ class LSQuestionSpider(scrapy.Spider):
         except Exception as ex:
             self.log('Failed to extract Text information'.format(ex))
 
+    def insert_in_db(self, q):
+        record = PQDataModel()
+        record.question_number = q['question_number']
+        record.question_origin = q['question_origin']
+        record.question_type = q['question_type']
+        record.question_session = q['question_session']
+        record.question_ministry = q['question_ministry']
+        record.question_member = q['question_member']
+        record.question_subject = q['question_subject']
+        record.question_type = q['question_type']
+        record.question_annex = q['question_annex']
+        record.question_url = q['question_url']
+        record.question_text = q['question_text']
+        record.question_url = q['question_url']
+        record.question_date = datetime.strptime(q['question_date'], '%d.%m.%Y')
+        record.save()
 
 
 
