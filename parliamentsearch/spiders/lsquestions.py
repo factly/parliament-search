@@ -27,7 +27,9 @@ class LSQuestionSpider(scrapy.Spider):
     """
 
     name = "ls_questions"
-    active_sessions = [16, 15, 14, 13, 12]  # most recent at the beginning
+    # active_sessions = [16, 15, 14, 13, 12]  # most recent at the beginning
+    # active_sessions = [15, 14, 13, 12]  # most recent at the beginning
+    active_sessions = [12]  # most recent at the beginning
     base_url = 'http://164.100.47.194/Loksabha/Questions/qsearch15.aspx'
 
     def start_requests(self):
@@ -113,7 +115,9 @@ class LSQuestionSpider(scrapy.Spider):
         sel = Selector(response)
 
         q_table_rows = sel.xpath(
-            '//div[@id="ContentPlaceHolder1_pnlDiv"]/table[@id="ContentPlaceHolder1_tblMember"]/tr/td/table[@class="member_list_table"]/tr')
+            '//div[@id="ContentPlaceHolder1_pnlDiv"]/'
+            'table[@id="ContentPlaceHolder1_tblMember"]/'
+            'tr/td/table[@class="member_list_table"]/tr')
 
         # list of questions available in a page
         # all of these are inserted into db at once

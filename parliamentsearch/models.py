@@ -8,7 +8,7 @@ class PQDataModel(Model):
     A DynamoDB User
     """
     class Meta:
-        table_name = "parliament_questions"
+        table_name = "parliament_questions_test"
         region='ap-south-1'
         read_capacity_units = 5
         write_capacity_units = 5
