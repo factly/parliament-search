@@ -115,9 +115,7 @@ class LSQuestionSpider(scrapy.Spider):
         sel = Selector(response)
 
         q_table_rows = sel.xpath(
-            '//div[@id="ContentPlaceHolder1_pnlDiv"]/'
-            'table[@id="ContentPlaceHolder1_tblMember"]/'
-            'tr/td/table[@class="member_list_table"]/tr')
+            '//div[@id="ContentPlaceHolder1_pnlDiv"]/table[@id="ContentPlaceHolder1_tblMember"]/tr/td/table[@class="member_list_table"]/tr')
 
         # list of questions available in a page
         # all of these are inserted into db at once
