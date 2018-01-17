@@ -23,5 +23,7 @@ class PQDataModel(Model):
     question_ministry = UnicodeAttribute(null=True)
     question_url = UnicodeAttribute(null=True)
     question_text = UnicodeAttribute(null=True)
+    question_query = UnicodeAttribute(null=True)
+    question_answer = UnicodeAttribute(null=True)
     question_annex = JSONAttribute(null=True)
 
