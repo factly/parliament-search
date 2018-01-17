@@ -29,7 +29,7 @@ class LSQuestionSpider(scrapy.Spider):
     name = "ls_questions"
     # active_sessions = [16, 15, 14, 13, 12]  # most recent at the beginning
     # active_sessions = [15, 14, 13, 12]  # most recent at the beginning
-    active_sessions = [12]  # most recent at the beginning
+    active_sessions = [16]  # most recent at the beginning
     base_url = 'http://164.100.47.194/Loksabha/Questions/qsearch15.aspx'
 
     def start_requests(self):
@@ -100,7 +100,7 @@ class LSQuestionSpider(scrapy.Spider):
         # loop through pages and scrape all questions
         if num_pages:
             # for now try to scrape data only from 2 pages
-            for n in range(499, 501):
+            for n in range(1, 100):
                 page_url = self.base_url + '?' + urlencode({'lsno': current_session})
                 formdata["ctl00$ContentPlaceHolder1$txtpage"] = str(n)
 

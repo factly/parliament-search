@@ -66,7 +66,7 @@ class RSQuestionSpider(scrapy.Spider):
     count = 0
 
     def start_requests(self):
-        for i in range(1, 10):
+        for i in range(500, 241936):
             url = "http://164.100.47.5/QSearch/AccessQuestionIpad.aspx?qref={}"
             url = url.format(i)
             request = scrapy.Request(url, dont_filter=True, callback=self.parse_page)
@@ -98,11 +98,13 @@ class RSQuestionSpider(scrapy.Spider):
         q['question_origin'] = 'rajyasabha'
         q['question_number'] = "".join(reversed(question_date.split("."))) + question_no
         q['question_type'] = question_type
-        q['question_session'] = None
+        q['question_session'] = 0 
 
         q['question_date'] = question_date
         q['question_ministry'] = question_ministry
-        q['question_member'] = question_member
+        member_list = list()
+        member_list.append(question_member)
+        q['question_member'] = member_list
         q['question_subject'] = question_subject
 
         q['question_annex'] = question_annex

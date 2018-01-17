@@ -34,8 +34,8 @@ class PQDataModel(Model):
     class Meta:
         table_name = "parliament_questions"
         region='ap-south-1'
-        read_capacity_units = 5
-        write_capacity_units = 5
+        read_capacity_units = 60
+        write_capacity_units = 60
 
     question_number = UnicodeAttribute(hash_key=True)
     question_origin = UnicodeAttribute(null=True)
@@ -53,9 +53,11 @@ class PQDataModel(Model):
 
 
 def main():
-    # for q in PQDataModel.query("", question_number__begins_with="13"):
+    #for q in PQDataModel.query("", question_number__begins_with="16"):
     #     print(q.question_session, q.question_url)
-    for q in PQDataModel.scan(PQDataModel.question_number.startswith('13')):
+    #for q in PQDataModel.scan():
+    #for q in PQDataModel.question_number.startswith('16'):
+    for q in PQDataModel.scan(PQDataModel.question_number.startswith('16')):
         es.index(index="pquestions", doc_type="pquestion", id=q.question_number, body=q.attribute_values)
         print(es.get(index="pquestions", doc_type="pquestion", id=q.question_number))
 
