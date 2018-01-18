@@ -9,76 +9,92 @@
 import scrapy
 from scrapy.http import FormRequest
 from parliamentsearch.items import RajyaSabhaQuestion
+from ..models import PQDataModel
+import requests
+from bs4 import BeautifulSoup
+from datetime import datetime
 
 from scrapy.selector import Selector
 
 
-class RSQuestionSpiderSave(scrapy.Spider):
+class RSQuestionSpider(scrapy.Spider):
     """
     This spider scrapes the questions asked in Rajya Sabha
     """
 
-    name = "rs_questions_save"
+    name = "rs_questions"
     base_url = 'http://164.100.47.5/qsearch/qsearch.aspx'
     count = 0
 
     def start_requests(self):
-        urls = [
-            self.base_url
-        ]
+        for i in range(5000, 241936):
+            url = "http://164.100.47.5/QSearch/AccessQuestionIpad.aspx?qref={}"
+            url = url.format(i)
+            request = scrapy.Request(url, dont_filter=True, callback=self.parse_page)
+            request.meta['dont_redirect'] = True
+            request.meta['handle_httpstatus_list'] = [301, 302]
+            yield request
 
-        for url in urls:
-            yield scrapy.Request(url, callback=self.parse)
+    def parse_page(self, response):
+        self.logger.debug("(parse_page) response: status=%d, URL=%s" % (response.status, response.url))
+        if response.status in (302,) and 'Location' in response.headers:
+            self.parse_questions(response.url)
 
-    def parse(self, response):
-        """ Scrape list of questions between start and end sessions """
-        start_session = 244
-        end_session = 244
-        view_state = response.css('input#__VIEWSTATE::attr(value)').extract_first()
-        event_validation = response.css('input#__EVENTVALIDATION::attr(value)').extract_first()
-        formdata = {
-            "ctl00$ContentPlaceHolder1$ddlqtype": "ANYTYPE",
-            "ctl00$ContentPlaceHolder1$ddlsesfrom": str(start_session),
-            "ctl00$ContentPlaceHolder1$ddlsesto": str(end_session),
-            "ctl00$ContentPlaceHolder1$btnALL": "AllRec.",
-            "__EVENTVALIDATION": event_validation,
-            "__VIEWSTATE": view_state
-        }
-        yield FormRequest(self.base_url, formdata=formdata, callback=self.parse_questions)
+    def parse_questions(self, url):
+        resp = requests.get(url, timeout=60)
+        print(url)
+        soup = BeautifulSoup(resp.content, 'html.parser')
+        question_ministry = soup.find(id="ctl00_ContentPlaceHolder1_Label1").text
+        question_type = soup.find(id="ctl00_ContentPlaceHolder1_Label2").text
+        question_no = soup.find(id="ctl00_ContentPlaceHolder1_Label3").text
+        question_date = soup.find(id="ctl00_ContentPlaceHolder1_Label4").text
+        question_subject = soup.find(id="ctl00_ContentPlaceHolder1_Label5").text
+        question_member = soup.find(id="ctl00_ContentPlaceHolder1_Label7").text
+        question_text = soup.find(id="ctl00_ContentPlaceHolder1_GridView2").text
+        question_query = soup.find(id="ctl00_ContentPlaceHolder1_GridView2").find_all('td', class_="griditem")[0].text
+        question_answer = soup.find(id="ctl00_ContentPlaceHolder1_GridView2").find_all('td', class_="griditem")[1].text
+        question_annex = {a.text: a['href'] for a in soup.find_all('a', href=True)}
 
-    def parse_questions(self, response):
-        """ Dumps the response to a file """
-        page = response.url.split("/")[-2]
-        filename = 'rs-%s.html' % page
+        q = dict()
+        q['question_origin'] = 'rajyasabha'
+        q['question_number'] = "".join(reversed(question_date.split("."))) + question_no
+        q['question_type'] = question_type
+        q['question_session'] = 0 
 
-        # print("################# {}".format(response.body))
+        q['question_date'] = question_date
+        q['question_ministry'] = question_ministry
+        member_list = list()
+        member_list.append(question_member)
+        q['question_member'] = member_list
+        q['question_subject'] = question_subject
 
-        # q='//div[@id="ctl00_ContentPlaceHolder1_UpdatePanel1"]/table[@id="ctl00_ContentPlaceHolder1_dg"]/tr'
-        q='//table[@id="ctl00_ContentPlaceHolder1_dg"]/tr'
+        q['question_annex'] = question_annex
+        q['question_url'] = url
+        q['question_text'] = question_text
+        q['question_query'] = question_query
+        q['question_answer'] = question_answer
 
-        # sel = Selector(response)
-        # rows = '//*[@id="ctl00_ContentPlaceHolder1_dg"]/tbody/tr*/td*'
+        print(q)
 
-        # sel = Selector(response)
-        #
-        # rows = sel.xpath(q)
-        # print("#####{}".format(rows))
-        for tr in response.xpath(q):
-            # print('$$$$ {}'.format(tr))
-            print(tr.xpath('td/a/text()').extract())
+        self.insert_in_db(q)
 
-        # print(response.xpath('//title/text()').extract())
-       # / print(response.xpath('//table/tr/text()').extract())
+        return q
 
-
-
-        # # rows = response.selector.xpath('//*[@id="ctl00_ContentPlaceHolder1_dg"]/tbody/tr/td/text()').extract()
-        #
-        # print("%%%%%%%%%%%%%%%%%%%%%%{}".format(rows))
-        # for row in rows:
-        #     print(row)
-
-        # with open(filename, 'wb') as f:
-        #     f.write(response.body)
-        #     self.count = self.count + 1
-        #     self.log('Saved file %s' % filename)
+    def insert_in_db(self, q):
+        record = PQDataModel()
+        record.question_number = q['question_number']
+        record.question_origin = q['question_origin']
+        record.question_type = q['question_type']
+        record.question_session = q['question_session']
+        record.question_ministry = q['question_ministry']
+        record.question_member = q['question_member']
+        record.question_subject = q['question_subject']
+        record.question_type = q['question_type']
+        record.question_annex = q['question_annex']
+        record.question_url = q['question_url']
+        record.question_text = q['question_text']
+        record.question_query = q['question_query']
+        record.question_answer = q['question_answer']
+        record.question_url = q['question_url']
+        record.question_date = datetime.strptime(q['question_date'], '%d.%m.%Y')
+        record.save()
