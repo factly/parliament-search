@@ -43,42 +43,42 @@ class RSQuestionSpider(scrapy.Spider):
     def parse_questions(self, url):
         resp = requests.get(url, timeout=60)
         print(url)
-        soup = BeautifulSoup(resp.content, 'html.parser')
-        question_ministry = soup.find(id="ctl00_ContentPlaceHolder1_Label1").text
-        question_type = soup.find(id="ctl00_ContentPlaceHolder1_Label2").text
-        question_no = soup.find(id="ctl00_ContentPlaceHolder1_Label3").text
-        question_date = soup.find(id="ctl00_ContentPlaceHolder1_Label4").text
-        question_subject = soup.find(id="ctl00_ContentPlaceHolder1_Label5").text
-        question_member = soup.find(id="ctl00_ContentPlaceHolder1_Label7").text
-        question_text = soup.find(id="ctl00_ContentPlaceHolder1_GridView2").text
-        question_query = soup.find(id="ctl00_ContentPlaceHolder1_GridView2").find_all('td', class_="griditem")[0].text
-        question_answer = soup.find(id="ctl00_ContentPlaceHolder1_GridView2").find_all('td', class_="griditem")[1].text
-        question_annex = {a.text: a['href'] for a in soup.find_all('a', href=True)}
+        if resp.ok:
+            soup = BeautifulSoup(resp.content, 'html.parser')
+            question_ministry = soup.find(id="ctl00_ContentPlaceHolder1_Label1").text
+            question_type = soup.find(id="ctl00_ContentPlaceHolder1_Label2").text
+            question_no = soup.find(id="ctl00_ContentPlaceHolder1_Label3").text
+            question_date = soup.find(id="ctl00_ContentPlaceHolder1_Label4").text
+            question_subject = soup.find(id="ctl00_ContentPlaceHolder1_Label5").text
+            question_member = soup.find(id="ctl00_ContentPlaceHolder1_Label7").text
+            question_text = soup.find(id="ctl00_ContentPlaceHolder1_GridView2").text
+            question_query = soup.find(id="ctl00_ContentPlaceHolder1_GridView2").find_all('td', class_="griditem")[0].text
+            question_answer = soup.find(id="ctl00_ContentPlaceHolder1_GridView2").find_all('td', class_="griditem")[1].text
+            question_annex = {a.text: a['href'] for a in soup.find_all('a', href=True)}
 
-        q = dict()
-        q['question_origin'] = 'rajyasabha'
-        q['question_number'] = "".join(reversed(question_date.split("."))) + question_no
-        q['question_type'] = question_type
-        q['question_session'] = 0 
+            q = dict()
+            q['question_origin'] = 'rajyasabha'
+            q['question_number'] = "".join(reversed(question_date.split("."))) + question_no
+            q['question_type'] = question_type
+            q['question_session'] = 0 
 
-        q['question_date'] = question_date
-        q['question_ministry'] = question_ministry
-        member_list = list()
-        member_list.append(question_member)
-        q['question_member'] = member_list
-        q['question_subject'] = question_subject
+            q['question_date'] = question_date
+            q['question_ministry'] = question_ministry
+            member_list = list()
+            member_list.append(question_member)
+            q['question_member'] = member_list
+            q['question_subject'] = question_subject
 
-        q['question_annex'] = question_annex
-        q['question_url'] = url
-        q['question_text'] = question_text
-        q['question_query'] = question_query
-        q['question_answer'] = question_answer
+            q['question_annex'] = question_annex
+            q['question_url'] = url
+            q['question_text'] = question_text
+            q['question_query'] = question_query
+            q['question_answer'] = question_answer
 
-        print(q)
-
-        self.insert_in_db(q)
-
-        return q
+            print(q)
+            self.insert_in_db(q)
+            return q
+        return None
 
     def insert_in_db(self, q):
         record = PQDataModel()
