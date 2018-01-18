@@ -17,45 +17,6 @@ from datetime import datetime
 from scrapy.selector import Selector
 
 
-# from bs4 import BeautifulSoup
-# import requests as r
-# for i in range(234789, 234795):
-#     url = 'http://164.100.47.5/QSearch/AccessQuestionIpad.aspx?qref={}'.format(i)
-#     resp = r.get(url)
-#     print(url)
-#     soup = BeautifulSoup(resp.content, 'html.parser')
-#     question_ministry = soup.find(id="ctl00_ContentPlaceHolder1_Label1").text
-#     question_type = soup.find(id="ctl00_ContentPlaceHolder1_Label2").text
-#     question_no = soup.find(id="ctl00_ContentPlaceHolder1_Label3").text
-#     question_date = soup.find(id="ctl00_ContentPlaceHolder1_Label4").text
-#     question_subject = soup.find(id="ctl00_ContentPlaceHolder1_Label5").text
-#     question_member = soup.find(id="ctl00_ContentPlaceHolder1_Label7").text
-#     question_text = soup.find(id="ctl00_ContentPlaceHolder1_GridView2").text
-#     question_query = soup.find(id="ctl00_ContentPlaceHolder1_GridView2").find_all('td', class_="griditem")[0].text
-#     question_answer = soup.find(id="ctl00_ContentPlaceHolder1_GridView2").find_all('td', class_="griditem")[1].text
-#     question_annex = {}
-#     question_annex = {a.text: a['href'] for a in soup.find_all('a', href=True)}
-#
-#     q = dict()
-#     q['question_origin'] = 'rajyasabha'
-#     q['question_number'] = "".join(reversed(question_date.split("."))) + question_no
-#     q['question_type'] = question_type
-#     q['question_session'] = None
-#
-#     q['question_date'] = question_date
-#     q['question_ministry'] = question_ministry
-#     q['question_member'] = question_member
-#     q['question_subject'] = question_subject
-#
-#     q['question_annex'] = question_annex
-#     q['question_url'] = url
-#     q['question_text'] = question_text
-#     q['question_query'] = question_query
-#     q['question_answer'] = question_answer
-#
-#     print(q)
-
-
 class RSQuestionSpider(scrapy.Spider):
     """
     This spider scrapes the questions asked in Rajya Sabha
