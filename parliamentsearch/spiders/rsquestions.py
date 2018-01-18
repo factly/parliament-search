@@ -27,7 +27,7 @@ class RSQuestionSpider(scrapy.Spider):
     count = 0
 
     def start_requests(self):
-        for i in range(5000, 241936):
+        for i in range(241936, 242936):
             url = "http://164.100.47.5/QSearch/AccessQuestionIpad.aspx?qref={}"
             url = url.format(i)
             request = scrapy.Request(url, dont_filter=True, callback=self.parse_page)

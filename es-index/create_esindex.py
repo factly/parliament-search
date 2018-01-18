@@ -57,7 +57,8 @@ def main():
     #     print(q.question_session, q.question_url)
     #for q in PQDataModel.scan():
     #for q in PQDataModel.question_number.startswith('16'):
-    for q in PQDataModel.scan(PQDataModel.question_number.startswith('16')):
+    for q in PQDataModel.scan(PQDataModel.question_origin.startswith('rajyasabha')):
+    #for q in PQDataModel.scan(PQDataModel.question_number.startswith('16')):
         es.index(index="pquestions", doc_type="pquestion", id=q.question_number, body=q.attribute_values)
         print(es.get(index="pquestions", doc_type="pquestion", id=q.question_number))
 
