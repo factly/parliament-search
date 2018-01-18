@@ -66,7 +66,7 @@ class RSQuestionSpider(scrapy.Spider):
     count = 0
 
     def start_requests(self):
-        for i in range(500, 241936):
+        for i in range(5000, 241936):
             url = "http://164.100.47.5/QSearch/AccessQuestionIpad.aspx?qref={}"
             url = url.format(i)
             request = scrapy.Request(url, dont_filter=True, callback=self.parse_page)
@@ -80,7 +80,7 @@ class RSQuestionSpider(scrapy.Spider):
             self.parse_questions(response.url)
 
     def parse_questions(self, url):
-        resp = requests.get(url)
+        resp = requests.get(url, timeout=60)
         print(url)
         soup = BeautifulSoup(resp.content, 'html.parser')
         question_ministry = soup.find(id="ctl00_ContentPlaceHolder1_Label1").text
