@@ -21,7 +21,7 @@ jieba3k==0.35.1
 jmespath==0.9.3
 lxml==4.1.1
 newspaper3k==0.2.5
-nltk==3.2.5
+nltk==3.4.5
 olefile==0.44
 parsel==1.2.0
 Pillow==4.3.0
